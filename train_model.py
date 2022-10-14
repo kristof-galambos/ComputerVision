@@ -5,7 +5,6 @@ from keras import models
 from keras import layers
 
 def training(data_path, model_path, epochs):
-    num_classes = 2
     vgg = VGG16(include_top=False, pooling='avg', weights='imagenet', input_shape=(178, 218, 3))
     vgg.summary()
     # Freeze the layers except the last 2 layers
@@ -21,7 +20,7 @@ def training(data_path, model_path, epochs):
     # Add new layers
     model.add(layers.Dense(128, activation='relu'))
     model.add(layers.BatchNormalization())
-    model.add(layers.Dense(num_classes, activation='sigmoid'))
+    model.add(layers.Dense(1, activation='sigmoid'))
     model.summary()
     model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
 
@@ -30,7 +29,7 @@ def training(data_path, model_path, epochs):
         data_path,
         target_size=(178, 218),
         batch_size=12,
-        class_mode='categorical')
+        class_mode='binary')
 
     model.fit_generator(train_generator, epochs=epochs)
     model.save(model_path)

@@ -1,7 +1,7 @@
 """
 todo:
     implement primitive DNN and CNN
-    upload to github, create gitignore
+    done - upload to github, create gitignore
 """
 
 from celeba_preprocess import preprocess
