@@ -3,6 +3,7 @@ todo:
     done - fix y_proba, change output to be 1 neuron instead of 2
     beautify evaluation of classification: compare 0s and 1s instead of strings like 'male' and 'female'
     implement post-regression activation functions
+    WARNING This does not produce image output. For that, see acomputervision/larger_face.py
 """
 
 import pandas as pd
@@ -12,6 +13,7 @@ import tensorflow as tf
 from keras.applications.vgg16 import preprocess_input
 from keras.preprocessing.image import ImageDataGenerator
 from sklearn.metrics import accuracy_score, roc_curve, roc_auc_score
+
 
 def classification(model_path):
     model = tf.keras.models.load_model(model_path)
