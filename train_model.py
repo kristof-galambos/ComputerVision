@@ -1,3 +1,7 @@
+"""
+todo: implement and plot training history, show overfitting for dnn
+"""
+
 import numpy as np
 from keras.applications import VGG16
 from keras.applications.vgg16 import preprocess_input
@@ -6,6 +10,7 @@ from keras.preprocessing.image import ImageDataGenerator
 from keras import models, Sequential
 from keras import layers
 import cv2
+import os
 
 def train_vgg(data_path, model_path, epochs):
     vgg = VGG16(include_top=False, pooling='avg', weights='imagenet', input_shape=(178, 218, 3))
@@ -40,8 +45,9 @@ def train_vgg(data_path, model_path, epochs):
 
 
 def train_dnn(data_path, model_path, epochs):
+    IMG_SIZE = 200
     model = Sequential()
-    model.add(Dense(1024, input_shape=(2500,), activation='relu'))
+    model.add(Dense(1024, input_shape=(IMG_SIZE*IMG_SIZE,), activation='relu'))
     model.add(Dense(1024, activation='relu'))
     model.add(Dense(1024, activation='relu'))
     model.add(Dense(1, activation='sigmoid'))
@@ -49,15 +55,29 @@ def train_dnn(data_path, model_path, epochs):
     model.summary()
     model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
 
-    data_generator = ImageDataGenerator(preprocessing_function=preprocess_for_dnn)
-    train_generator = data_generator.flow_from_directory(
-        data_path,
-        target_size=(2500,),
-        color_mode='grayscale',
-        batch_size=12,
-        class_mode='binary')
-
-    model.fit_generator(train_generator, epochs=epochs)
+    male_filenames = os.listdir(data_path + '/male/')
+    print(male_filenames)
+    female_filenames = os.listdir(data_path + '/female/')
+    train_males = np.array([cv2.imread(data_path + '/male/' + filename) for filename in male_filenames])
+    train_females = np.array([cv2.imread(data_path + '/female/' + filename) for filename in female_filenames])
+    train_males = np.array([cv2.resize(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY), (IMG_SIZE,IMG_SIZE)).flatten() for img in train_males])
+    train_females = np.array([cv2.resize(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY), (IMG_SIZE,IMG_SIZE)).flatten() for img in train_females])
+    print(train_females.shape)
+    X_train = np.concatenate([train_males, train_females])
+    y_male = np.array([0 for _ in range(len(train_males))])
+    y_female = np.array([1 for _ in range(len(train_females))])
+    y_train = np.concatenate([y_male, y_female])
+    train_data, train_labels = shuffle(X_train, y_train)
+    print('after shuffling:', train_labels)
+    # data_generator = ImageDataGenerator(preprocessing_function=preprocess_for_dnn)
+    # train_generator = data_generator.flow_from_directory(
+    #     data_path,
+    #     target_size=(2500,),
+    #     color_mode='grayscale',
+    #     batch_size=12,
+    #     class_mode='binary')
+    #
+    model.fit(train_data, train_labels, batch_size=12, epochs=epochs, verbose=1)
     model.save(model_path)
     print('model saved')
 
@@ -68,6 +88,14 @@ def preprocess_for_dnn(image):
     # smaller = np.resize(cv2.resize(image, (50, 50)), (50, 50, 1))
     smaller = cv2.resize(image, (50, 50))
     return smaller.flatten()
+
+
+def shuffle(X, y):
+    indices = list(range(len(y)))
+    np.random.shuffle(indices)
+    train_data = X[indices]
+    train_labels = y[indices]
+    return train_data, train_labels
 
 
 def train_cnn(data_path, model_path, epochs):

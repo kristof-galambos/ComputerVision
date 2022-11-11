@@ -3,6 +3,7 @@ todo:
     done - fix y_proba, change output to be 1 neuron instead of 2
     beautify evaluation of classification: compare 0s and 1s instead of strings like 'male' and 'female'
     implement post-regression activation functions
+    fix classification for dnn
     WARNING This does not produce image output. For that, see acomputervision/larger_face.py
 """
 
