@@ -45,7 +45,10 @@ def classification(model_path):
         filenz.append(filenames[i].split('/')[0])
     filenz = filenz[1:]
 
-    y_true = np.array([1 if x == 'female' else 0 for x in filenz])
+    shift = 0 # use different labellings for vgg
+    if 'cnn' not in model_path and 'dnn' not in model_path:
+        shift = 1
+    y_true = np.array([1-shift if x == 'female' else 0+shift for x in filenz])
     print('accuracy_score:', accuracy_score(y_true, y_pred))
     print('auc score:', roc_auc_score(y_true, y_proba))
     fpr, tpr, thresholds = roc_curve(y_true, y_proba)
