@@ -54,6 +54,9 @@ def classification(model_path):
     plt.xlabel('false positive rate')
     plt.ylabel('true positive rate')
     plt.plot(fpr, tpr)
+    xref = np.linspace(0, 1, 10)
+    yref = xref
+    plt.plot(xref, yref, 'k--')
     plt.savefig('ROC_curve.png')
 
     # determine the test set accuracy

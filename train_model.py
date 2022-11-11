@@ -68,7 +68,7 @@ def train_dnn(data_path, model_path, epochs):
     y_train = np.concatenate([y_male, y_female])
     train_data, train_labels = shuffle(X_train, y_train)
     history = model.fit(train_data, train_labels, batch_size=12, epochs=epochs, verbose=1, validation_split=0.2)
-    with open('history.pkl', 'wb') as file:
+    with open('history_DNN.pkl', 'wb') as file:
         pickle.dump(history, file)
     model.save(model_path)
     print('model saved')
@@ -124,8 +124,7 @@ def train_cnn(data_path, model_path, epochs):
     y_train = np.concatenate([y_male, y_female])
     train_data, train_labels = shuffle(X_train, y_train)
     history = model.fit(train_data, train_labels, batch_size=12, epochs=epochs, verbose=1, validation_split=0.2)
-    with open('history.pkl', 'wb') as file:
+    with open('history_CNN.pkl', 'wb') as file:
         pickle.dump(history, file)
     model.save(model_path)
     print('model saved')
-    return
