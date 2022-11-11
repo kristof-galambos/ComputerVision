@@ -12,8 +12,8 @@ from classify import classification
 PREPROCESS = True
 TRAIN_MODEL = True
 CLASSIFY = True
-MODEL_TYPE = 'vgg'
-# MODEL_TYPE = 'cnn'
+# MODEL_TYPE = 'vgg'
+MODEL_TYPE = 'cnn'
 # MODEL_TYPE = 'dnn'
 
 if PREPROCESS:

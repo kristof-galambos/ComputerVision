@@ -46,9 +46,10 @@ def train_vgg(data_path, model_path, epochs):
 
 
 def train_dnn(data_path, model_path, epochs):
-    IMG_SIZE = 200
+    IMG_HEIGHT = 178
+    IMG_WIDTH = 218
     model = Sequential()
-    model.add(Dense(1024, input_shape=(IMG_SIZE*IMG_SIZE,), activation='relu'))
+    model.add(Dense(1024, input_shape=(IMG_HEIGHT*IMG_WIDTH,), activation='relu'))
     model.add(Dense(1024, activation='relu'))
     model.add(Dense(1024, activation='relu'))
     model.add(Dense(1, activation='sigmoid'))
@@ -60,8 +61,8 @@ def train_dnn(data_path, model_path, epochs):
     female_filenames = os.listdir(data_path + '/female/')
     train_males = np.array([cv2.imread(data_path + '/male/' + filename) for filename in male_filenames])
     train_females = np.array([cv2.imread(data_path + '/female/' + filename) for filename in female_filenames])
-    train_males = np.array([cv2.resize(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY), (IMG_SIZE,IMG_SIZE)).flatten() for img in train_males])
-    train_females = np.array([cv2.resize(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY), (IMG_SIZE,IMG_SIZE)).flatten() for img in train_females])
+    train_males = np.array([cv2.resize(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY), (IMG_HEIGHT,IMG_WIDTH)).flatten() for img in train_males])
+    train_females = np.array([cv2.resize(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY), (IMG_HEIGHT,IMG_WIDTH)).flatten() for img in train_females])
     X_train = np.concatenate([train_males, train_females])
     y_male = np.array([0 for _ in range(len(train_males))])
     y_female = np.array([1 for _ in range(len(train_females))])

@@ -7,6 +7,7 @@ todo:
     WARNING This does not produce image output. For that, see acomputervision/larger_face.py
 """
 
+import pickle
 import pandas as pd
 import numpy as np
 from matplotlib import pyplot as plt
@@ -52,6 +53,16 @@ def classification(model_path):
     print('accuracy_score:', accuracy_score(y_true, y_pred))
     print('auc score:', roc_auc_score(y_true, y_proba))
     fpr, tpr, thresholds = roc_curve(y_true, y_proba)
+    if 'cnn' in model_path:
+        fname = 'roc_cnn.pkl'
+    elif 'dnn' in model_path:
+        fname = 'roc_dnn.pkl'
+    else:
+        fname = 'roc_vgg.pkl'
+    with open(fname, 'wb') as f:
+        pickle.dump(fpr, f)
+        pickle.dump(tpr, f)
+        pickle.dump(thresholds, f)
     plt.figure(1)
     plt.title('ROC curve')
     plt.xlabel('false positive rate')
