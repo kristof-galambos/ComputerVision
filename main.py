@@ -22,7 +22,7 @@ if PREPROCESS:
 if TRAIN_MODEL:
     if MODEL_TYPE == 'cnn':
         train_cnn(data_path='/Users/kristofgalambos/Downloads/archive/train_play',
-                  model_path='models/mac_model_celeba_cnn_playing', epochs=2)
+                  model_path='models/mac_model_celeba_cnn_playing', epochs=6)
     elif MODEL_TYPE == 'dnn':
         train_dnn(data_path='/Users/kristofgalambos/Downloads/archive/train_play',
                   model_path='models/mac_model_celeba_dnn_playing', epochs=12)

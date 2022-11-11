@@ -112,15 +112,20 @@ def train_cnn(data_path, model_path, epochs):
     model.summary()
     model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
 
-    data_generator = ImageDataGenerator(preprocessing_function=preprocess_input, validation_split=0.2)
-    train_generator = data_generator.flow_from_directory(
-        data_path,
-        target_size=(178, 218),
-        batch_size=12,
-        class_mode='binary')
-
-    history = model.fit_generator(train_generator, epochs=epochs, verbose=1)
+    male_filenames = os.listdir(data_path + '/male/')
+    female_filenames = os.listdir(data_path + '/female/')
+    train_males = np.array([cv2.imread(data_path + '/male/' + filename) for filename in male_filenames])
+    train_females = np.array([cv2.imread(data_path + '/female/' + filename) for filename in female_filenames])
+    train_males = np.array([cv2.resize(img, (218, 178)) for img in train_males])
+    train_females = np.array([cv2.resize(img, (218, 178)) for img in train_females])
+    X_train = np.concatenate([train_males, train_females])
+    y_male = np.array([0 for _ in range(len(train_males))])
+    y_female = np.array([1 for _ in range(len(train_females))])
+    y_train = np.concatenate([y_male, y_female])
+    train_data, train_labels = shuffle(X_train, y_train)
+    history = model.fit(train_data, train_labels, batch_size=12, epochs=epochs, verbose=1, validation_split=0.2)
     with open('history.pkl', 'wb') as file:
         pickle.dump(history, file)
     model.save(model_path)
     print('model saved')
+    return

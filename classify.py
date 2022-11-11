@@ -45,7 +45,7 @@ def classification(model_path):
         filenz.append(filenames[i].split('/')[0])
     filenz = filenz[1:]
 
-    y_true = np.array([0 if x == 'female' else 1 for x in filenz])
+    y_true = np.array([1 if x == 'female' else 0 for x in filenz])
     print('accuracy_score:', accuracy_score(y_true, y_pred))
     print('auc score:', roc_auc_score(y_true, y_proba))
     fpr, tpr, thresholds = roc_curve(y_true, y_proba)
