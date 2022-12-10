@@ -7,35 +7,40 @@ todo:
 
 from celeba_preprocess import preprocess
 from train_model import train_vgg, train_cnn, train_dnn
-from classify import classification
+from classify import classification, classification_dnn
+import time
 
-PREPROCESS = True
-TRAIN_MODEL = True
+start_time = time.perf_counter()
+
+PREPROCESS = False
+TRAIN_MODEL = False
 CLASSIFY = True
-# MODEL_TYPE = 'vgg'
-MODEL_TYPE = 'cnn'
+MODEL_TYPE = 'vgg'
+# MODEL_TYPE = 'cnn'
 # MODEL_TYPE = 'dnn'
 
 if PREPROCESS:
-    preprocess(play=True)
+    preprocess(play=False)
 
 if TRAIN_MODEL:
     if MODEL_TYPE == 'cnn':
-        train_cnn(data_path='/Users/kristofgalambos/Downloads/archive/train_play',
-                  model_path='models/mac_model_celeba_cnn_playing', epochs=6)
+        train_cnn(data_path='/Users/kristofgalambos/Downloads/archive/train',
+                  model_path='models/mac_model_celeba_cnn_6', epochs=6)
     elif MODEL_TYPE == 'dnn':
-        train_dnn(data_path='/Users/kristofgalambos/Downloads/archive/train_play',
-                  model_path='models/mac_model_celeba_dnn_playing', epochs=12)
+        train_dnn(data_path='/Users/kristofgalambos/Downloads/archive/train',
+                  model_path='models/mac_model_celeba_dnn_5', epochs=5)
     else:
-        train_vgg(data_path='/Users/kristofgalambos/Downloads/archive/train_play',
-                  model_path='models/mac_model_celeba_playing', epochs=1)
+        train_vgg(data_path='/Users/kristofgalambos/Downloads/archive/train',
+                  model_path='models/mac_model_celeba_vgg_1', epochs=1)
 
 if CLASSIFY:
     if MODEL_TYPE == 'cnn':
-        classification('models/mac_model_celeba_cnn_playing')
+        classification('models/mac_model_celeba_cnn_6')
     elif MODEL_TYPE == 'dnn':
-        classification('models/mac_model_celeba_dnn_playing')
+        classification_dnn('models/mac_model_celeba_dnn_12')
     else:
-        classification('models/mac_model_celeba_playing')
+        classification('models/mac_model_celeba_vgg_5')
 
+end_time = time.perf_counter()
+print('program finished in', end_time - start_time, 'seconds')
 print('PROGRAM ENDS HERE')

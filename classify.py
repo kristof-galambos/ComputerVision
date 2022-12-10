@@ -7,6 +7,8 @@ todo:
     WARNING This does not produce image output. For that, see acomputervision/larger_face.py
 """
 
+import os
+import cv2
 import pickle
 import pandas as pd
 import numpy as np
@@ -23,7 +25,7 @@ def classification(model_path):
     data_generator = ImageDataGenerator(preprocessing_function=preprocess_input)
     # generate data for test set of images
     test_generator = data_generator.flow_from_directory(
-        '/Users/kristofgalambos/Downloads/archive/test_play',
+        '/Users/kristofgalambos/Downloads/archive/test',
         target_size=(178, 218),
         batch_size=1,
         class_mode='binary',
@@ -80,3 +82,56 @@ def classification(model_path):
     print('accuracy:', match.count(True) / len(filenames))
     results = pd.DataFrame({"Filename": filenz, "Predictions": predictions})
     results.to_csv("GenderID_test_results.csv", index=False)
+
+
+def classification_dnn(model_path):
+    """just to account for the discrepancy that DNN expects 1D series of pixels"""
+    IMG_HEIGHT = 178
+    IMG_WIDTH = 218
+    model = tf.keras.models.load_model(model_path)
+
+    data_path = '/Users/kristofgalambos/Downloads/archive/test'
+    male_filenames = [x for x in os.listdir(data_path + '/male/') if 'DS' not in x]
+    female_filenames = [x for x in os.listdir(data_path + '/female/') if 'DS' not in x]
+    train_males = np.array([cv2.imread(data_path + '/male/' + filename) for filename in male_filenames])
+    train_females = np.array([cv2.imread(data_path + '/female/' + filename) for filename in female_filenames])
+    train_males = np.array(
+        [cv2.resize(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY), (IMG_HEIGHT, IMG_WIDTH)).flatten() for img in train_males])
+    train_females = np.array(
+        [cv2.resize(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY), (IMG_HEIGHT, IMG_WIDTH)).flatten() for img in train_females])
+    X_train = np.concatenate([train_males, train_females])
+    y_male = np.array([0 for _ in range(len(train_males))])
+    y_female = np.array([1 for _ in range(len(train_females))])
+    y_train = np.concatenate([y_male, y_female])
+    train_data, train_labels = shuffle(X_train, y_train)
+
+    y_proba = model.predict(X_train).flatten()
+    y_true = train_labels
+
+    y_pred = np.array([round(x) for x in y_proba])
+
+    print('accuracy_score:', accuracy_score(y_true, y_pred))
+    print('auc score:', roc_auc_score(y_true, y_proba))
+    fpr, tpr, thresholds = roc_curve(y_true, y_proba)
+    fname = 'roc_dnn.pkl'
+    with open(fname, 'wb') as f:
+        pickle.dump(fpr, f)
+        pickle.dump(tpr, f)
+        pickle.dump(thresholds, f)
+    plt.figure(1)
+    plt.title('ROC curve')
+    plt.xlabel('false positive rate')
+    plt.ylabel('true positive rate')
+    plt.plot(fpr, tpr)
+    xref = np.linspace(0, 1, 10)
+    yref = xref
+    plt.plot(xref, yref, 'k--')
+    plt.savefig('ROC_curve.png')
+
+
+def shuffle(X, y):
+    indices = list(range(len(y)))
+    np.random.shuffle(indices)
+    train_data = X[indices]
+    train_labels = y[indices]
+    return train_data, train_labels

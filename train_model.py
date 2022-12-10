@@ -57,8 +57,8 @@ def train_dnn(data_path, model_path, epochs):
     model.summary()
     model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
 
-    male_filenames = os.listdir(data_path + '/male/')
-    female_filenames = os.listdir(data_path + '/female/')
+    male_filenames = [x for x in os.listdir(data_path + '/male/') if 'DS' not in x]
+    female_filenames = [x for x in os.listdir(data_path + '/female/') if 'DS' not in x]
     train_males = np.array([cv2.imread(data_path + '/male/' + filename) for filename in male_filenames])
     train_females = np.array([cv2.imread(data_path + '/female/' + filename) for filename in female_filenames])
     train_males = np.array([cv2.resize(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY), (IMG_HEIGHT,IMG_WIDTH)).flatten() for img in train_males])
@@ -113,12 +113,12 @@ def train_cnn(data_path, model_path, epochs):
     model.summary()
     model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
 
-    male_filenames = os.listdir(data_path + '/male/')
-    female_filenames = os.listdir(data_path + '/female/')
+    male_filenames = [x for x in os.listdir(data_path + '/male/') if 'DS_Store' not in x]
+    female_filenames = [x for x in os.listdir(data_path + '/female/') if 'DS_Store' not in x]
     train_males = np.array([cv2.imread(data_path + '/male/' + filename) for filename in male_filenames])
     train_females = np.array([cv2.imread(data_path + '/female/' + filename) for filename in female_filenames])
-    train_males = np.array([cv2.resize(img, (218, 178)) for img in train_males])
-    train_females = np.array([cv2.resize(img, (218, 178)) for img in train_females])
+    train_males = np.array([cv2.resize(img, (218, 178), interpolation=cv2.INTER_AREA) for img in train_males])
+    train_females = np.array([cv2.resize(img, (218, 178), interpolation=cv2.INTER_AREA) for img in train_females])
     X_train = np.concatenate([train_males, train_females])
     y_male = np.array([0 for _ in range(len(train_males))])
     y_female = np.array([1 for _ in range(len(train_females))])
