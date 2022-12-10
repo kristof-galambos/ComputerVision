@@ -40,7 +40,10 @@ def train_vgg(data_path, model_path, epochs):
         batch_size=12,
         class_mode='binary')
 
-    model.fit_generator(train_generator, epochs=epochs)
+    history = model.fit_generator(train_generator, epochs=epochs)
+    history = model.fit(train_data, train_labels, batch_size=12, epochs=epochs, verbose=1, validation_split=0.2)
+    with open('history_VGG.pkl', 'wb') as file:
+        pickle.dump(history, file)
     model.save(model_path)
     print('model saved')
 
