@@ -6,6 +6,7 @@ todo:
     fix classification for dnn
     WARNING This does not produce image output. For that, see acomputervision/larger_face.py
     rename variables sensible - right now in the classify they are all called train stuff
+    look into why roc for dnn is basically just two points - for some reason DNN always predicts the same number
 """
 
 import os
@@ -66,7 +67,9 @@ def classification(model_path):
     X_train = np.concatenate([train_males, train_females])
     y_male = np.array([0 for _ in range(len(train_males))])
     y_female = np.array([1 for _ in range(len(train_females))])
-    y_train = np.concatenate([y_male, y_female]) * (-1) + 1
+    y_train = np.concatenate([y_male, y_female])
+    if 'vgg' in model_path:
+        y_train = y_train * (-1) + 1
     train_data, train_labels = shuffle(X_train, y_train)
 
     y_proba = model.predict(train_data).flatten()
@@ -131,12 +134,19 @@ def classification_dnn(model_path):
     y_train = np.concatenate([y_male, y_female])
     train_data, train_labels = shuffle(X_train, y_train)
 
+    print(train_data[0, 0])
+    print(train_data[1, 0])
+    print('train_data.shape=', train_data.shape)
     y_proba = model.predict(train_data).flatten()
     y_true = train_labels
+    print(y_proba)
 
     y_pred = np.array([round(x) for x in y_proba])
 
     print('accuracy_score:', accuracy_score(y_true, y_pred))
+    print(y_true.shape)
+    print(y_pred.shape)
+    print(y_pred)
     print('auc score:', roc_auc_score(y_true, y_proba))
     fpr, tpr, thresholds = roc_curve(y_true, y_proba)
     fname = 'roc_dnn.pkl'

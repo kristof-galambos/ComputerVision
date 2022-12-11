@@ -13,7 +13,7 @@ import time
 start_time = time.perf_counter()
 
 PREPROCESS = False
-TRAIN_MODEL = False
+TRAIN_MODEL = True
 CLASSIFY = True
 MODEL_TYPE = 'vgg'
 # MODEL_TYPE = 'cnn'
@@ -31,13 +31,13 @@ if TRAIN_MODEL:
                   model_path='models/mac_model_celeba_dnn_5', epochs=5)
     else:
         train_vgg(data_path='/Users/kristofgalambos/Downloads/archive/train',
-                  model_path='models/mac_model_celeba_vgg_1', epochs=1)
+                  model_path='models/mac_model_celeba_vgg_5', epochs=5)
 
 if CLASSIFY:
     if MODEL_TYPE == 'cnn':
         classification('models/mac_model_celeba_cnn_6')
     elif MODEL_TYPE == 'dnn':
-        classification_dnn('models/mac_model_celeba_dnn_12')
+        classification_dnn('models/mac_model_celeba_dnn_5')
     else:
         classification('models/mac_model_celeba_vgg_5')
 

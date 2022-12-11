@@ -33,14 +33,18 @@ def train_vgg(data_path, model_path, epochs):
     model.summary()
     model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
 
-    data_generator = ImageDataGenerator(preprocessing_function=preprocess_input)
-    train_generator = data_generator.flow_from_directory(
-        data_path,
-        target_size=(178, 218),
-        batch_size=12,
-        class_mode='binary')
+    male_filenames = [x for x in os.listdir(data_path + '/male/') if 'DS_Store' not in x]
+    female_filenames = [x for x in os.listdir(data_path + '/female/') if 'DS_Store' not in x]
+    train_males = np.array([cv2.imread(data_path + '/male/' + filename) for filename in male_filenames])
+    train_females = np.array([cv2.imread(data_path + '/female/' + filename) for filename in female_filenames])
+    train_males = np.array([cv2.resize(img, (218, 178), interpolation=cv2.INTER_AREA) for img in train_males])
+    train_females = np.array([cv2.resize(img, (218, 178), interpolation=cv2.INTER_AREA) for img in train_females])
+    X_train = np.concatenate([train_males, train_females])
+    y_male = np.array([0 for _ in range(len(train_males))])
+    y_female = np.array([1 for _ in range(len(train_females))])
+    y_train = np.concatenate([y_male, y_female])
+    train_data, train_labels = shuffle(X_train, y_train)
 
-    history = model.fit_generator(train_generator, epochs=epochs)
     history = model.fit(train_data, train_labels, batch_size=12, epochs=epochs, verbose=1, validation_split=0.2)
     with open('history_VGG.pkl', 'wb') as file:
         pickle.dump(history, file)
