@@ -53,8 +53,8 @@ def train_vgg(data_path, model_path, epochs):
 
 
 def train_dnn(data_path, model_path, epochs):
-    IMG_HEIGHT = 178
-    IMG_WIDTH = 218
+    IMG_HEIGHT = 178 // 4
+    IMG_WIDTH = 218 // 4
     model = Sequential()
     model.add(Dense(1024, input_shape=(IMG_HEIGHT*IMG_WIDTH,), activation='relu'))
     model.add(Dense(1024, activation='relu'))

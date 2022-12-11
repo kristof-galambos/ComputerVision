@@ -115,8 +115,8 @@ def classification(model_path):
 
 def classification_dnn(model_path):
     """just to account for the discrepancy that DNN expects 1D series of pixels"""
-    IMG_HEIGHT = 178
-    IMG_WIDTH = 218
+    IMG_HEIGHT = 178 // 4
+    IMG_WIDTH = 218 // 4
     model = tf.keras.models.load_model(model_path)
 
     data_path = '/Users/kristofgalambos/Downloads/archive/test'

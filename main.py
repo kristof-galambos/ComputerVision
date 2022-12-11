@@ -15,9 +15,9 @@ start_time = time.perf_counter()
 PREPROCESS = False
 TRAIN_MODEL = True
 CLASSIFY = True
-MODEL_TYPE = 'vgg'
+# MODEL_TYPE = 'vgg'
 # MODEL_TYPE = 'cnn'
-# MODEL_TYPE = 'dnn'
+MODEL_TYPE = 'dnn'
 
 if PREPROCESS:
     preprocess(play=False)
