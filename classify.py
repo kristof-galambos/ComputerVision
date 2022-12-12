@@ -68,8 +68,8 @@ def classification(model_path):
     y_male = np.array([0 for _ in range(len(train_males))])
     y_female = np.array([1 for _ in range(len(train_females))])
     y_train = np.concatenate([y_male, y_female])
-    if 'vgg' in model_path:
-        y_train = y_train * (-1) + 1
+    # if 'vgg' in model_path:
+    #     y_train = y_train * (-1) + 1
     train_data, train_labels = shuffle(X_train, y_train)
 
     y_proba = model.predict(train_data).flatten()
