@@ -19,9 +19,41 @@ import tensorflow as tf
 from keras.applications.vgg16 import preprocess_input
 from keras.preprocessing.image import ImageDataGenerator
 from sklearn.metrics import accuracy_score, roc_curve, roc_auc_score
+from scipy.optimize import curve_fit
 
+
+def get_rescaling_function(threshold=0.5, display=False):
+    scale = 2 * threshold
+    shift = 0
+    if threshold > 0.5:
+        scale = (1 - threshold) * 2
+        shift = threshold * 2 - 1
+    xcoords = np.array([0., 0.35, 0.5, 0.65, 1.]) * scale + shift
+    ycoords = np.array([0., 0.2, 0.5, 0.8, 1.])
+
+    def func(x, a, b, c, d):
+        return a * x ** 3 + b * x ** 2 + c * x + d
+
+    def tanh_func(x, a, b, c, d):
+        return np.tanh(a * x + b) * c + d
+
+    popt, pcov = curve_fit(tanh_func, xcoords, ycoords, p0=[1, 0, 1, 0])
+    if display:
+        xsample = np.linspace(0, 1, 1000)
+        ysample = tanh_func(xsample, *popt)
+        plt.figure(2)
+        plt.plot(xsample, ysample)
+        plt.plot(xcoords, ycoords, 'o')
+        plt.title('Probability rescaling using tanh function')
+        plt.xlabel('old probability values')
+        plt.ylabel('new probability values')
+        plt.savefig('gradation_function.png')
+
+    return tanh_func, popt
 
 def classification(model_path):
+    post_activation = False
+
     # model = tf.keras.models.load_model(model_path)
 
     # data_generator = ImageDataGenerator(preprocessing_function=preprocess_input)
@@ -71,10 +103,22 @@ def classification(model_path):
     # if 'vgg' in model_path:
     #     y_train = y_train * (-1) + 1
     train_data, train_labels = shuffle(X_train, y_train)
-
     y_proba = model.predict(train_data).flatten()
     y_true = train_labels
 
+    def threshold_optimizer(thresh, params):
+        ytrue, yproba = params
+        func, popt = get_rescaling_function(thresh)
+        yproba = func(yproba, *popt)
+        return accuracy_score(ytrue, yproba)
+
+    if post_activation:
+        p_opt, p_cov = curve_fit(threshold_optimizer, (y_true, y_proba), 1, p0=0.5)
+
+        optimized_threshold = p_opt[0]
+        print('optimized threshold =', optimized_threshold)
+        rescaler, poptimal = get_rescaling_function(optimized_threshold)
+        y_proba = rescaler(y_proba, *poptimal)
     y_pred = np.array([round(x) for x in y_proba])
 
     # shift = 0 # use different labellings for vgg
